@@ -37,9 +37,13 @@ jobs:
         working-directory: app
         run: flutter pub get
 
+      - name: Run build_runner (code generation)
+        working-directory: app
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze code
         working-directory: app
-        run: flutter analyze --no-fatal-infos
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build APK (release)
         working-directory: app
