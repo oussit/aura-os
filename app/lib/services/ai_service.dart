@@ -1,6 +1,8 @@
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../core/constants/app_constants.dart';
 import '../models/generation_model.dart';
 import '../models/wallpaper_model.dart';
@@ -69,9 +71,7 @@ class AIService {
             try {
               yield GenerationResult.fromJson(
                 Map<String, dynamic>.from(
-                  Dio().transformer.transformResponse(
-                    Response(requestOptions: RequestOptions(), data: json),
-                  ) as Map,
+                  jsonDecode(json) as Map,
                 ),
               );
             } catch (_) {}

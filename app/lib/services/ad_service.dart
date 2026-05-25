@@ -245,16 +245,6 @@ class AdService {
           debugPrint('❌ Native failed: $error');
         },
       ),
-      nativeTemplateStyle: NativeTemplateStyle(
-        templateType: TemplateType.medium,
-        mainBackgroundColor: const Color(0xFF111111),
-        cornerRadius: 16,
-        callToActionStyle: NativeTemplateTextStyle(
-          size: 14,
-          style: NativeTemplateFontStyle.bold,
-          backgroundcolor: const Color(0xFF00F5FF),
-        ),
-      ),
     )..load();
   }
 

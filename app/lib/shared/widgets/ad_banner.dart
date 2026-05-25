@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import '../../services/ad_service.dart';
+import '../../core/constants/ad_config.dart';
 import '../../models/user_model.dart';
 
 /// Banner ad widget. Automatically hidden for premium users.
@@ -22,16 +21,20 @@ class _AuraBannerAdState extends State<AuraBannerAd> {
   void initState() {
     super.initState();
     if (widget.tier == SubscriptionTier.free) {
-      _ad = AdService().createBannerAd();
-      _ad!.listener = BannerAdListener(
-        onAdLoaded: (ad) {
-          if (mounted) setState(() => _isLoaded = true);
-        },
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-          _ad = null;
-        },
-      );
+      _ad = BannerAd(
+        adUnitId: AdConfig.bannerAdUnit,
+        size: AdSize.banner,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            if (mounted) setState(() => _isLoaded = true);
+          },
+          onAdFailedToLoad: (ad, error) {
+            ad.dispose();
+            _ad = null;
+          },
+        ),
+      )..load();
     }
   }
 
