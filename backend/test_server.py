@@ -201,10 +201,10 @@ async def enhance_prompt(req: EnhancePromptRequest):
 
 
 @app.post("/v1/ai/director")
-async def ai_director(message: str = "", history: list = []):
+async def ai_director(req: dict = {}):
     return {
         "response": f"Great vision! I'd recommend:\n\n🎨 Style: Cyberpunk Neon\n✨ Effects: Particles + Fog + Parallax\n🌈 Colors: Cyan, Purple, Deep Black\n🎬 Motion: Gentle drift with glow\n\nShall I generate?",
-        "suggested_prompt": f"{message}, cyberpunk, neon, cinematic, AMOLED, masterpiece",
+        "suggested_prompt": f"{req.get("message", "wallpaper")}, cyberpunk, neon, cinematic, AMOLED, masterpiece",
         "suggested_style": "cyberpunk",
         "suggested_effects": ["particles", "parallax", "glow", "fog"],
     }

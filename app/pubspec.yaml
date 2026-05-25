@@ -14,8 +14,6 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_animate: ^4.3.0
   shimmer: ^3.0.0
-  glassmorphism: ^3.0.0
-  flutter_blur: ^1.0.0
   animated_text_kit: ^4.2.2
   lottie: ^3.0.0
   cached_network_image: ^3.3.0
@@ -59,7 +57,6 @@ dependencies:
   # Animations & Graphics
   vector_math: ^2.1.4
   flame: ^1.14.0
-  flame_tiled: ^1.17.0
   
   # Firebase / Supabase
   firebase_core: ^2.24.2
