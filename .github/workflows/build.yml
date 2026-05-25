@@ -1,0 +1,114 @@
+name: Build AURA OS APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Flutter APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Get dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Analyze code
+        working-directory: app
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build APK (release)
+        working-directory: app
+        run: flutter build apk --release --split-per-abi
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aura-os-apk
+          path: |
+            app/build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+
+  build-backend:
+    name: Test Backend API
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install fastapi uvicorn pydantic pydantic-settings httpx pytest pytest-asyncio
+
+      - name: Run API tests
+        run: |
+          cd backend
+          python -c "
+          from test_server import app
+          from fastapi.testclient import TestClient
+          client = TestClient(app)
+
+          # Health
+          r = client.get('/health')
+          assert r.status_code == 200
+          assert r.json()['status'] == 'healthy'
+
+          # Register
+          r = client.post('/v1/auth/register', json={'email':'test@auraos.app','display_name':'Tester'})
+          assert r.status_code == 200
+          assert 'user_id' in r.json()
+
+          # Generate
+          r = client.post('/v1/ai/generate', json={'prompt':'Cyberpunk samurai','style':'cyberpunk','enhance_prompt':True})
+          assert r.status_code == 200
+          assert r.json()['status'] == 'completed'
+          assert 'neon lights' in r.json()['prompt']
+
+          # Enhance prompt
+          r = client.post('/v1/ai/enhance-prompt', json={'prompt':'Dark dragon','style':'amoled'})
+          assert r.status_code == 200
+          assert 'AMOLED' in r.json()['enhanced']
+
+          # AI Director
+          r = client.post('/v1/ai/director?message=Tokyo+night')
+          assert r.status_code == 200
+
+          # History
+          r = client.get('/v1/ai/history')
+          assert r.status_code == 200
+
+          # Profile
+          r = client.get('/v1/users/me')
+          assert r.status_code == 200
+
+          print('✅ All 7 API tests passed!')
+          "

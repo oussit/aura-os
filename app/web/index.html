@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AURA OS — Preview</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#000;--black-light:#0a0a0a;--black-card:#111;--black-elevated:#1a1a1a;
+  --neon-cyan:#00f5ff;--neon-purple:#b24bf3;--neon-pink:#ff2d95;--neon-green:#39ff14;
+  --neon-orange:#ff6b00;--neon-blue:#0080ff;--neon-red:#ff0040;
+  --glass-border:rgba(255,255,255,0.1);--glass-bg:rgba(17,17,17,0.6);
+  --text-primary:#fff;--text-secondary:rgba(255,255,255,0.7);--text-tertiary:rgba(255,255,255,0.4);
+}
+html,body{height:100%;background:var(--black);color:var(--text-primary);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}
+.phone{width:100%;max-width:420px;height:100vh;margin:0 auto;position:relative;overflow:hidden;background:var(--black)}
+
+/* Particles */
+#particles{position:absolute;inset:0;z-index:0;pointer-events:none}
+
+/* Screens */
+.screen{position:absolute;inset:0;z-index:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s}
+.screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+.screen.active{transform:translateX(0);opacity:1}
+
+/* Onboarding */
+#onboarding{z-index:10;background:var(--black)}
+.ob-page{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px;text-align:center}
+.ob-logo{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:900;color:#000;margin-bottom:32px;box-shadow:0 0 40px rgba(0,245,255,.4);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 30px rgba(0,245,255,.3)}50%{box-shadow:0 0 50px rgba(0,245,255,.6)}}
+.ob-title{font-size:32px;font-weight:900;line-height:1.1;margin-bottom:16px;letter-spacing:-.5px}
+.ob-subtitle{font-size:16px;color:var(--text-secondary);line-height:1.5;margin-bottom:40px}
+.ob-dots{display:flex;gap:6px;margin-bottom:24px}
+.ob-dot{width:8px;height:8px;border-radius:4px;background:var(--text-tertiary);transition:all .3s}
+.ob-dot.active{width:28px;background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.btn-primary{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));color:#000;box-shadow:0 0 20px rgba(0,245,255,.3)}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{background:transparent;color:var(--text-tertiary);font-size:14px}
+
+/* Glass */
+.glass{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px}
+
+/* Home */
+#home{background:var(--black)}
+.home-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:sticky;top:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:5}
+.home-logo{display:flex;align-items:center;gap:10px}
+.home-logo-icon{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#000}
+.home-logo-text{font-size:18px;font-weight:800;letter-spacing:2px}
+.home-actions{display:flex;gap:4px}
+.home-actions button{background:none;border:none;color:var(--text-secondary);padding:8px;cursor:pointer;font-size:20px}
+
+/* Trending */
+.trending-badge{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,var(--neon-orange),var(--neon-red),var(--neon-pink));font-size:12px;font-weight:700;letter-spacing:1px;margin:8px 20px 12px}
+
+/* Style chips */
+.style-chips{display:flex;gap:8px;padding:0 20px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.style-chips::-webkit-scrollbar{display:none}
+.style-chip{flex-shrink:0;padding:10px 16px;border-radius:24px;background:var(--black-elevated);border:1px solid var(--glass-border);font-size:13px;color:var(--text-secondary);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.style-chip.active{background:rgba(0,245,255,.1);border-color:var(--neon-cyan);color:var(--neon-cyan);font-weight:600}
+
+/* Grid */
+.wallpaper-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px}
+.wallpaper-card{border-radius:20px;aspect-ratio:.6;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s}
+.wallpaper-card:active{transform:scale(.97)}
+.wallpaper-card .bg{position:absolute;inset:0}
+.wallpaper-card .overlay{position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.8));}
+.wallpaper-card .info{position:absolute;bottom:0;left:0;right:0;padding:12px}
+.wallpaper-card .prompt{font-size:11px;font-weight:500;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wallpaper-card .meta{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-tertiary)}
+.wallpaper-card .live-tag{margin-left:auto;padding:2px 8px;border-radius:8px;background:rgba(0,245,255,.2);font-size:9px;font-weight:700;color:var(--neon-cyan);letter-spacing:1px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--neon-green);position:absolute;top:10px;right:10px;box-shadow:0 0 6px var(--neon-green)}
+
+/* Bottom Nav */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--black-light);border-top:1px solid var(--glass-border);display:flex;justify-content:space-around;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:20}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;cursor:pointer;transition:all .2s}
+.nav-item.active .nav-icon{color:var(--neon-cyan)}
+.nav-item.active .nav-label{color:var(--neon-cyan);font-weight:600}
+.nav-icon{font-size:20px;color:var(--text-tertiary);transition:color .2s}
+.nav-label{font-size:11px;color:var(--text-tertiary)}
+.fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-size:24px;color:#000;box-shadow:0 0 20px rgba(0,245,255,.3);cursor:pointer;position:fixed;bottom:calc(8px + env(safe-area-inset-bottom,8px));left:50%;transform:translateX(-50%);z-index:21;animation:pulse 2s ease-in-out infinite}
+
+/* Generator */
+#generator{z-index:5}
+.gen-header{display:flex;align-items:center;padding:12px 20px;gap:12px}
+.gen-header .back{background:none;border:none;color:var(--text-primary);font-size:20px;padding:8px;cursor:pointer}
+.gen-badge{padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));font-size:12px;font-weight:700;letter-spacing:1.5px;color:#000}
+.gen-preview{margin:0 20px;aspect-ratio:9/16;max-height:280px;border-radius:24px;background:linear-gradient(135deg,#1a0030,#0a0020,#001020);display:flex;align-items:center;justify-content:center;border:1px solid var(--glass-border);position:relative;overflow:hidden}
+.gen-preview .placeholder{text-align:center;color:var(--text-tertiary)}
+.gen-preview .placeholder .icon{font-size:40px;margin-bottom:8px}
+.gen-progress{display:none;text-align:center}
+.gen-progress .ring{width:60px;height:60px;margin:0 auto 12px}
+.gen-progress .ring svg{transform:rotate(-90deg)}
+.gen-progress .ring circle{fill:none;stroke-width:3}
+.gen-progress .ring .bg{stroke:rgba(255,255,255,.1)}
+.gen-progress .ring .fg{stroke:var(--neon-cyan);stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset .5s}
+.gen-progress .pct{font-size:20px;font-weight:700}
+.gen-progress .phase{font-size:12px;color:var(--text-secondary);margin-top:4px}
+
+/* Prompt input */
+.prompt-input{margin:16px 20px}
+.prompt-input textarea{width:100%;background:var(--black-elevated);border:1px solid var(--glass-border);border-radius:16px;padding:14px 16px;color:var(--text-primary);font-size:15px;resize:none;outline:none;font-family:inherit;min-height:48px}
+.prompt-input textarea:focus{border-color:var(--neon-cyan)}
+.prompt-input textarea::placeholder{color:var(--text-tertiary)}
+.prompt-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding:0 4px}
+.enhance-btn{background:none;border:none;color:var(--neon-purple);font-size:18px;cursor:pointer;padding:4px}
+.char-count{font-size:11px;color:var(--text-tertiary)}
+
+/* Style selector */
+.section-title{font-size:16px;font-weight:600;margin:20px 20px 12px}
+.style-grid{display:flex;gap:10px;padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.style-grid::-webkit-scrollbar{display:none}
+.style-item{flex-shrink:0;width:72px;padding:12px 0;border-radius:16px;background:var(--black-elevated);border:1px solid var(--glass-border);text-align:center;cursor:pointer;transition:all .2s}
+.style-item.active{background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));border-color:transparent;box-shadow:0 0 12px rgba(0,245,255,.3)}
+.style-item .emoji{font-size:22px;display:block;margin-bottom:4px}
+.style-item .name{font-size:10px;color:var(--text-secondary)}
+.style-item.active .name{color:#000;font-weight:700}
+
+/* Effects */
+.effects-wrap{margin:0 20px;padding:16px}
+.effects-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.effect-chip{padding:8px 14px;border-radius:20px;background:var(--black-elevated);border:1px solid var(--glass-border);font-size:12px;color:var(--text-tertiary);cursor:pointer;transition:all .2s}
+.effect-chip.active{background:rgba(0,245,255,.15);border-color:rgba(0,245,255,.4);color:var(--neon-cyan);font-weight:600}
+
+/* Slider */
+.slider-wrap{display:flex;align-items:center;gap:12px;margin:12px 0}
+.slider-wrap label{font-size:13px;color:var(--text-secondary);flex-shrink:0}
+.slider-wrap input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--black-elevated);border-radius:2px;outline:none}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--neon-cyan);box-shadow:0 0 8px var(--neon-cyan)}
+.slider-val{font-size:13px;font-weight:600;color:var(--neon-cyan);width:36px;text-align:right}
+
+/* AI Director */
+#ai-director{z-index:5;display:flex;flex-direction:column;height:100vh}
+.dir-header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--glass-border)}
+.dir-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--neon-green),var(--neon-cyan),var(--neon-purple));display:flex;align-items:center;justify-content:center;font-size:20px;animation:pulse 2s infinite}
+.dir-info .name{font-size:15px;font-weight:700}
+.dir-info .status{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px}
+.dir-info .status .dot{width:5px;height:5px;border-radius:50%;background:var(--neon-green)}
+
+.chat{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:80%;padding:14px 16px;border-radius:20px;font-size:14px;line-height:1.5;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.ai{align-self:flex-start;background:rgba(178,75,243,.08);border:1px solid rgba(178,75,243,.2)}
+.msg.user{align-self:flex-end;background:rgba(0,245,255,.08);border:1px solid rgba(0,245,255,.2)}
+.msg .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.msg .actions button{padding:8px 14px;border-radius:20px;border:1px solid rgba(178,75,243,.3);background:rgba(178,75,243,.1);color:var(--neon-purple);font-size:12px;cursor:pointer}
+
+.dir-input{padding:12px 16px;border-top:1px solid var(--glass-border);display:flex;gap:8px;background:var(--black-light)}
+.dir-input input{flex:1;background:var(--black-elevated);border:1px solid var(--glass-border);border-radius:24px;padding:12px 16px;color:var(--text-primary);font-size:14px;outline:none;font-family:inherit}
+.dir-input input:focus{border-color:var(--neon-purple)}
+.dir-input input::placeholder{color:var(--text-tertiary)}
+.dir-send{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));border:none;color:#000;font-size:18px;cursor:pointer;flex-shrink:0}
+
+/* Profile */
+#profile{z-index:5}
+.profile-header{padding:40px 20px 20px;text-align:center}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.profile-name{font-size:20px;font-weight:700;margin-bottom:4px}
+.profile-tier{display:inline-block;padding:4px 12px;border-radius:12px;background:linear-gradient(135deg,#ffd700,#ffa000);font-size:11px;font-weight:700;color:#000;letter-spacing:1px}
+.profile-stats{display:flex;justify-content:center;gap:24px;margin-top:16px}
+.stat{text-align:center}
+.stat .num{font-size:20px;font-weight:700}
+.stat .label{font-size:11px;color:var(--text-tertiary)}
+
+.profile-menu{padding:8px 20px}
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--glass-border);cursor:pointer}
+.menu-item .icon{font-size:20px;width:36px;height:36px;border-radius:12px;background:var(--black-elevated);display:flex;align-items:center;justify-content:center}
+.menu-item .text{flex:1}
+.menu-item .text .title{font-size:14px;font-weight:500}
+.menu-item .text .desc{font-size:11px;color:var(--text-tertiary)}
+.menu-item .arrow{color:var(--text-tertiary)}
+
+/* Toast */
+.toast{position:fixed;top:40px;left:50%;transform:translateX(-50%) translateY(-100px);padding:12px 24px;border-radius:16px;background:var(--black-card);border:1px solid var(--neon-cyan);color:var(--text-primary);font-size:14px;z-index:100;transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:0 0 20px rgba(0,245,255,.2)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:0}
+</style>
+</head>
+<body>
+<div class="phone">
+  <canvas id="particles"></canvas>
+
+  <!-- ONBOARDING -->
+  <div id="onboarding" class="screen active">
+    <div class="ob-page" id="ob-page-0">
+      <div class="ob-logo">A</div>
+      <div class="ob-title">Welcome to<br>AURA OS</div>
+      <div class="ob-subtitle">Your phone is about to come alive</div>
+      <div class="ob-dots" id="ob-dots"></div>
+      <button class="btn btn-primary" onclick="obNext()">Next →</button>
+      <button class="btn btn-ghost" onclick="skipOnboarding()">Skip</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="screen hidden">
+    <div class="home-header">
+      <div class="home-logo">
+        <div class="home-logo-icon">A</div>
+        <span class="home-logo-text">AURA OS</span>
+      </div>
+      <div class="home-actions">
+        <button>🔔</button>
+        <button>🔍</button>
+      </div>
+    </div>
+    <div class="trending-badge">🔥 TRENDING</div>
+    <div class="style-chips" id="style-chips"></div>
+    <div class="wallpaper-grid" id="wallpaper-grid"></div>
+    <div style="height:80px"></div>
+  </div>
+
+  <!-- GENERATOR -->
+  <div id="generator" class="screen hidden">
+    <div class="gen-header">
+      <button class="back" onclick="showScreen('home')">←</button>
+      <div class="gen-badge">✨ AI GENERATOR</div>
+    </div>
+    <div class="gen-preview" id="gen-preview">
+      <div class="placeholder" id="gen-placeholder">
+        <div class="icon">✨</div>
+        <div>Your creation<br>appears here</div>
+      </div>
+      <div class="gen-progress" id="gen-progress">
+        <div class="ring">
+          <svg width="60" height="60"><circle class="bg" cx="30" cy="30" r="25"/><circle class="fg" id="progress-ring" cx="30" cy="30" r="25"/></svg>
+        </div>
+        <div class="pct" id="gen-pct">0%</div>
+        <div class="phase" id="gen-phase">Preparing...</div>
+      </div>
+    </div>
+    <div class="prompt-input">
+      <textarea id="prompt-input" rows="2" placeholder="Describe your dream wallpaper..." maxlength="500"></textarea>
+      <div class="prompt-row">
+        <button class="enhance-btn" onclick="enhancePrompt()" title="AI Enhance">🪄</button>
+        <span class="char-count"><span id="char-count">0</span>/500</span>
+      </div>
+    </div>
+    <div class="section-title">Style</div>
+    <div class="style-grid" id="gen-styles"></div>
+    <div class="effects-wrap glass">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span>🎬</span><span style="font-weight:600">Motion & Effects</span>
+      </div>
+      <div class="slider-wrap">
+        <label>Intensity</label>
+        <input type="range" min="0" max="100" value="70" id="intensity-slider" oninput="document.getElementById('intensity-val').textContent=this.value+'%'">
+        <span class="slider-val" id="intensity-val">70%</span>
+      </div>
+      <div class="effects-row" id="effects-row"></div>
+    </div>
+    <div style="padding:0 20px">
+      <button class="btn btn-primary" style="width:100%" onclick="generate()">⚡ Generate Wallpaper</button>
+    </div>
+    <div style="height:100px"></div>
+  </div>
+
+  <!-- AI DIRECTOR -->
+  <div id="ai-director" class="screen hidden">
+    <div class="dir-header">
+      <button class="back" onclick="showScreen('home')" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer">←</button>
+      <div class="dir-avatar">🧠</div>
+      <div class="dir-info">
+        <div class="name">Aura AI Director</div>
+        <div class="status"><span class="dot"></span> Online • Ready to create</div>
+      </div>
+    </div>
+    <div class="chat" id="chat"></div>
+    <div class="dir-input">
+      <input id="dir-input" placeholder="Describe your vision..." onkeydown="if(event.key==='Enter')sendDirector()">
+      <button class="dir-send" onclick="sendDirector()">➤</button>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="profile" class="screen hidden">
+    <div class="profile-header">
+      <div class="profile-avatar">🎨</div>
+      <div class="profile-name">CyberSamurai</div>
+      <div class="profile-tier">PRO ✨</div>
+      <div class="profile-stats">
+        <div class="stat"><div class="num">42</div><div class="label">Creations</div></div>
+        <div class="stat"><div class="num">1.2K</div><div class="label">Likes</div></div>
+        <div class="stat"><div class="num">89</div><div class="label">Followers</div></div>
+      </div>
+    </div>
+    <div class="profile-menu">
+      <div class="menu-item"><div class="icon">💎</div><div class="text"><div class="title">Subscription</div><div class="desc">Pro • Unlimited generations</div></div><div class="arrow">›</div></div>
+      <div class="menu-item"><div class="icon">📁</div><div class="text"><div class="title">My Wallpapers</div><div class="desc">42 creations</div></div><div class="arrow">›</div></div>
+      <div class="menu-item"><div class="icon">💾</div><div class="text"><div class="title">Saved</div><div class="desc">18 saved wallpapers</div></div><div class="arrow">›</div></div>
+      <div class="menu-item"><div class="icon">🎨</div><div class="text"><div class="title">Custom Styles</div><div class="desc">Train your own AI style</div></div><div class="arrow">›</div></div>
+      <div class="menu-item"><div class="icon">⚙️</div><div class="text"><div class="title">Settings</div><div class="desc">Battery, performance, cache</div></div><div class="arrow">›</div></div>
+      <div class="menu-item"><div class="icon">📊</div><div class="text"><div class="title">Stats</div><div class="desc">Usage, generations, storage</div></div><div class="arrow">›</div></div>
+    </div>
+  </div>
+
+  <!-- FAB + NAV -->
+  <div class="fab" id="fab" onclick="showScreen('generator')">⚡</div>
+  <div class="bottom-nav" id="bottom-nav">
+    <div class="nav-item active" onclick="navTo('home')"><span class="nav-icon">🧭</span><span class="nav-label">Explore</span></div>
+    <div class="nav-item" onclick="navTo('generator')"><span class="nav-icon">🖼️</span><span class="nav-label">Library</span></div>
+    <div style="width:56px"></div>
+    <div class="nav-item" onclick="navTo('social')"><span class="nav-icon">👥</span><span class="nav-label">Social</span></div>
+    <div class="nav-item" onclick="navTo('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== PARTICLES =====
+const canvas=document.getElementById('particles'),ctx=canvas.getContext('2d');
+let W,H,particles=[];
+function resizeCanvas(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resizeCanvas();window.addEventListener('resize',resizeCanvas);
+
+class Particle{
+  constructor(){this.reset()}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.5;this.vy=(Math.random()-.5)*.5;
+    this.size=1+Math.random()*2.5;
+    this.opacity=.2+Math.random()*.5;
+    this.color=['#00f5ff','#b24bf3','#39ff14','#ff2d95'][Math.floor(Math.random()*4)];
+    this.life=1+Math.random()*3;this.maxLife=this.life;
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;this.life-=.008;
+    if(this.life<=0||this.x<-20||this.x>W+20||this.y<-20||this.y>H+20)this.reset();
+  }
+  draw(){
+    const a=this.opacity*(this.life/this.maxLife);
+    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=this.color.replace(')',`,${a})`).replace('rgb','rgba').replace('#','');
+    ctx.globalAlpha=a;ctx.fillStyle=this.color;ctx.shadowBlur=8;ctx.shadowColor=this.color;
+    ctx.fill();ctx.shadowBlur=0;ctx.globalAlpha=1;
+  }
+}
+for(let i=0;i<60;i++)particles.push(new Particle());
+function animParticles(){ctx.clearRect(0,0,W,H);particles.forEach(p=>{p.update();p.draw()});requestAnimationFrame(animParticles)}
+animParticles();
+
+// ===== ONBOARDING =====
+const obPages=[
+  {title:'Welcome to<br>AURA OS',sub:'Your phone is about to come alive',emoji:'✨'},
+  {title:'AI-Powered<br>Wallpapers',sub:'Describe your dream wallpaper and watch it materialize',emoji:'🤖'},
+  {title:'Cinematic<br>Motion',sub:'Static images transform into living, breathing art',emoji:'🎬'},
+  {title:'Interactive<br>Experience',sub:'Your wallpaper reacts to touch, tilt, time, and weather',emoji:'📱'}
+];
+let obCurrent=0;
+
+function renderOnboarding(){
+  const p=obPages[obCurrent];
+  document.getElementById('ob-page-0').innerHTML=`
+    <div class="ob-logo">${p.emoji}</div>
+    <div class="ob-title">${p.title}</div>
+    <div class="ob-subtitle">${p.sub}</div>
+    <div class="ob-dots">${obPages.map((_,i)=>`<div class="ob-dot${i===obCurrent?' active':''}"></div>`).join('')}</div>
+    <button class="btn btn-primary" onclick="obNext()">${obCurrent===obPages.length-1?'Start Creating ✨':'Next →'}</button>
+    ${obCurrent<obPages.length-1?'<button class="btn btn-ghost" onclick="skipOnboarding()">Skip</button>':''}
+  `;
+}
+function obNext(){obCurrent++;if(obCurrent>=obPages.length)skipOnboarding();else renderOnboarding()}
+function skipOnboarding(){document.getElementById('onboarding').classList.remove('active');document.getElementById('onboarding').classList.add('hidden');showScreen('home')}
+
+// ===== STYLES & DATA =====
+const styles=['Cyberpunk','Anime','AMOLED','Fantasy','Sci-Fi','Realistic','Abstract','Gaming','Nature','Futuristic','Chrome','Neon Noir'];
+const emojis={'Cyberpunk':'🌆','Anime':'🌸','AMOLED':'🖤','Fantasy':'🐉','Sci-Fi':'🚀','Realistic':'📷','Abstract':'🎨','Gaming':'🎮','Nature':'🌿','Futuristic':'🔮','Chrome':'🪞','Neon Noir':'🌃'};
+const gradients=['linear-gradient(135deg,#ff006e,#8338ec)','linear-gradient(135deg,#00f5ff,#b24bf3)','linear-gradient(135deg,#ff6b00,#ff0040)','linear-gradient(135deg,#0080ff,#00f5ff)','linear-gradient(135deg,#39ff14,#00f5ff)','linear-gradient(135deg,#b24bf3,#ff2d95)'];
+const prompts=['Cyberpunk samurai in neon rain','AMOLED black dragon with glowing eyes','Anime girl under moonlight with particles','Futuristic BMW drifting through Tokyo','Minimal black hole with moving stars','Liquid chrome wolf with smoke','Neon cityscape at midnight','Galaxy warrior with energy sword','Dark phoenix rising from ashes','Mech warrior in acid rain','Silent hill nurse in fog','Astronaut floating in nebula'];
+const effects=['🌧️ Rain','✨ Particles','💨 Fog','⚡ Lightning','🔥 Fire','❄️ Snow','🌊 Flow','💫 Parallax'];
+
+// ===== RENDER HOME =====
+function renderHome(){
+  document.getElementById('style-chips').innerHTML=styles.map((s,i)=>`<div class="style-chip${i===0?' active':''}" onclick="selectChip(this)">${emojis[s]} ${s}</div>`).join('');
+  let grid='';
+  for(let i=0;i<12;i++){
+    const g=gradients[i%gradients.length];
+    const p=prompts[i%prompts.length];
+    grid+=`<div class="wallpaper-card"><div class="bg" style="background:${g}"></div><div class="overlay"></div><span class="live-dot"></span><div class="info"><div class="prompt">${p}</div><div class="meta"><span>❤️ ${(i+1)*127}</span><span class="live-tag">LIVE</span></div></div></div>`;
+  }
+  document.getElementById('wallpaper-grid').innerHTML=grid;
+}
+
+// ===== RENDER GENERATOR =====
+function renderGenerator(){
+  document.getElementById('gen-styles').innerHTML=styles.map((s,i)=>`<div class="style-item${i===0?' active':''}" onclick="selectStyle(this,'${s}')"><span class="emoji">${emojis[s]}</span><span class="name">${s}</span></div>`).join('');
+  document.getElementById('effects-row').innerHTML=effects.map((e,i)=>`<div class="effect-chip${i<3?' active':''}" onclick="this.classList.toggle('active')">${e}</div>`).join('');
+  document.getElementById('prompt-input').addEventListener('input',function(){document.getElementById('char-count').textContent=this.value.length});
+}
+
+function selectChip(el){document.querySelectorAll('.style-chip').forEach(e=>e.classList.remove('active'));el.classList.add('active')}
+function selectStyle(el,name){document.querySelectorAll('.style-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');showToast(`Style: ${name}`)}
+
+// ===== GENERATE =====
+async function generate(){
+  const prompt=document.getElementById('prompt-input').value;
+  if(!prompt.trim()){showToast('Enter a prompt first');return}
+  const ph=document.getElementById('gen-placeholder'),pg=document.getElementById('gen-progress');
+  ph.style.display='none';pg.style.display='block';
+  const phases=['Analyzing prompt...','Composing scene...','Rendering details...','Adding effects...','Final touches...','Complete!'];
+  for(let i=0;i<=100;i+=2){
+    const offset=157-(157*i/100);
+    document.getElementById('progress-ring').style.strokeDashoffset=offset;
+    document.getElementById('gen-pct').textContent=i+'%';
+    document.getElementById('gen-phase').textContent=phases[Math.floor(i/20)]||phases[4];
+    await new Promise(r=>setTimeout(r,50));
+  }
+  document.getElementById('gen-phase').textContent='✨ Wallpaper ready!';
+  showToast('Generation complete!');
+  // Call actual API
+  try{
+    const r=await fetch('/v1/ai/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,style:'cyberpunk',enhance_prompt:true})});
+    const d=await r.json();
+    console.log('Generated:',d);
+  }catch(e){}
+  setTimeout(()=>{ph.style.display='block';pg.style.display='none'},3000);
+}
+
+function enhancePrompt(){
+  const ta=document.getElementById('prompt-input');
+  if(!ta.value.trim()){showToast('Enter a prompt first');return}
+  ta.value+=', masterpiece, best quality, ultra detailed, 8k, cinematic lighting';
+  document.getElementById('char-count').textContent=ta.value.length;
+  showToast('Prompt enhanced ✨');
+}
+
+// ===== AI DIRECTOR =====
+const dirMessages=[
+  {ai:true,text:"Hey! I'm your Aura AI Director 🎨\n\nTell me the vibe you want and I'll craft the perfect wallpaper.\n\nTry:\n• \"Futuristic Tokyo night\"\n• \"Dark and mysterious with glowing eyes\"\n• \"AMOLED space with particles\"",actions:null}
+];
+function renderDirector(){
+  document.getElementById('chat').innerHTML=dirMessages.map(m=>`<div class="msg ${m.ai?'ai':'user'}">${m.text.replace(/\n/g,'<br>')}${m.actions?`<div class="actions">${m.actions.map(a=>`<button onclick="sendDirectorMsg('${a}')">${a}</button>`).join('')}</div>`:''}</div>`).join('');
+  const c=document.getElementById('chat');c.scrollTop=c.scrollHeight;
+}
+function sendDirector(){
+  const input=document.getElementById('dir-input');const text=input.value.trim();
+  if(!text)return;input.value='';
+  dirMessages.push({ai:false,text,actions:null});
+  renderDirector();
+  setTimeout(()=>{
+    dirMessages.push({ai:true,text:`I love that vision! Here's my plan:\n\n🎨 Style: Cyberpunk Neon\n✨ Effects: Rain + Fog + Parallax\n🌈 Colors: Deep purple, electric cyan\n🎬 Motion: Gentle drift with reactive glow\n\nShall I generate it?`,actions:['Generate it!','Make it darker','Add more particles','Try anime style']});
+    renderDirector();
+  },1500);
+}
+function sendDirectorMsg(text){document.getElementById('dir-input').value=text;sendDirector()}
+
+// ===== NAVIGATION =====
+function showScreen(id){
+  ['home','generator','ai-director','profile','onboarding'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(s===id){el.classList.remove('hidden');el.classList.add('active')}
+    else if(s!=='onboarding'){el.classList.remove('active');el.classList.add('hidden')}
+  });
+  const fab=document.getElementById('fab'),nav=document.getElementById('bottom-nav');
+  const hideNav=['generator','ai-director'].includes(id);
+  fab.style.display=hideNav?'none':'flex';nav.style.display=hideNav?'none':'flex';
+  if(id==='ai-director')renderDirector();
+}
+function navTo(id){
+  if(id==='social'){showToast('Social feed coming soon');return}
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    const ids=['home','generator','social','profile'];
+    el.classList.toggle('active',ids[i]===id);
+  });
+  showScreen(id);
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ===== INIT =====
+renderHome();renderGenerator();renderDirector();renderOnboarding();
+</script>
+</body>
+</html>
