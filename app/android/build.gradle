@@ -16,6 +16,13 @@ allprojects {
         google()
         mavenCentral()
     }
+    subprojects {
+        afterEvaluate {
+            if (it.hasProperty('android')) {
+                it.android.namespace ?= "com.${it.name.replaceAll('-', '_')}"
+            }
+        }
+    }
 }
 
 rootProject.buildDir = '../build'
