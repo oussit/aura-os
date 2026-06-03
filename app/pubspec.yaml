@@ -101,14 +101,4 @@ flutter:
     - assets/animations/
     - assets/lottie/
   
-  fonts:
-    - family: AuraSans
-      fonts:
-        - asset: assets/fonts/AuraSans-Light.ttf
-        - asset: assets/fonts/AuraSans-Regular.ttf
-        - asset: assets/fonts/AuraSans-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/AuraSans-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/AuraSans-Black.ttf
-          weight: 900
+  # Fonts (removed — not used in app; Google Fonts handles typography)
